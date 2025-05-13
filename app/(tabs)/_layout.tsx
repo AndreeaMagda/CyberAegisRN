@@ -7,12 +7,15 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  // Handle null or undefined colorScheme by defaulting to 'light'
+  const theme = colorScheme === 'dark' ? 'dark' : 'light';
 
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: Colors[colorScheme].background,
+
+          backgroundColor: Colors[theme].background,
           paddingBottom: Platform.OS === 'ios' ? 20 : 10, // Evită suprapunerea
           height: Platform.OS === 'ios' ? 80 : 60, // Ajustează înălțimea
         },
@@ -29,12 +32,23 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="LevelSelector"
+
         options={{
-          title: 'Profil',
+          title: 'Levels',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="game-controller" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="PlatformerGame"
+        options={{
+          title: 'Level 1',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="code-working" size={size} color={color} />
+          ),
+          href: null, // Hide from tab bar but keep accessible via navigation
         }}
       />
     </Tabs>

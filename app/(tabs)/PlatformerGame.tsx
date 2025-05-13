@@ -4,15 +4,35 @@ import {
   StyleSheet,
   TouchableOpacity,
   Text,
-  Modal,
   ScrollView,
   SafeAreaView,
   Dimensions,
   StatusBar,
   Vibration,
   Animated,
+  Modal,
 } from 'react-native';
-// import LottieView from 'lottie-react-native';
+import { useRouter, Stack } from 'expo-router';
+import { platformerGameStyles } from '../styles/platformerGameStyle';
+import NetworkCables from '../../components/platfomerComponents/networkCables';
+import ServerLeft from '@/components/platfomerComponents/serverLeft';
+import TutorialOverlay from '@/components/platfomerComponents/tutorialOverlay';
+import MovementController from '@/components/platfomerComponents/MovementController';
+import EngineerCharacter from '@/components/platfomerComponents/EngineerCharacter';
+import ComputerWorkstation from '@/components/platfomerComponents/ComputerWorkstation';
+import MalwareThreat from '@/components/platfomerComponents/MalwareThreat';
+import QuizModal from '@/components/platfomerComponents/QuizModal';
+import SecurityStatus from '@/components/platfomerComponents/SecurityStatus';
+import ProgressBar from '@/components/platfomerComponents/ProgressBar';
+import LevelTitle from '@/components/platfomerComponents/LevelTitle';
+import ScoreDisplay from '@/components/platfomerComponents/ScoreDisplay';
+import GridBackground from '@/components/platfomerComponents/GridBackground';
+import NavigationControls from '@/components/platfomerComponents/NavigationControls';
+import SecurityTip from '@/components/platfomerComponents/SecurityTip';
+import SuccessMessage from '@/components/platfomerComponents/SuccessMessage';
+import HelpButton from '@/components/platfomerComponents/HelpButton';
+import RightSection from '@/components/platfomerComponents/RightSection';
+import HackerLab from '@/components/platfomerComponents/HackerLab';
 
 // Get screen dimensions
 const { width, height } = Dimensions.get('window');
@@ -27,45 +47,352 @@ interface QuizQuestion {
   correctAnswer: number;
 }
 
-const quizQuestions: QuizQuestion[] = [
+// All available quiz questions
+const allQuizQuestions: QuizQuestion[] = [
   {
-    question: 'Ce trebuie să faci când primești un mesaj de la un străin?',
+    question: 'Ce înseamnă securitatea cibernetică?',
     options: [
-      'Deschid mesajul',
-      'Spun unui adult',
-      'Răspund imediat',
-      'Dau click pe link',
+      'Să instalezi multe jocuri gratuite',
+      'Să te conectezi la orice rețea Wi-Fi',
+      'Să te protejezi când folosești internetul',
+      'Să postezi poze cu prietenii',
     ],
-    correctAnswer: 1,
-  },
-  {
-    question: 'Care este o parolă bună?',
-    options: ['123456', 'numele meu', 'Fl0@re!Alb@stră', 'parola'],
     correctAnswer: 2,
   },
   {
-    question: 'Ce faci când folosești internetul?',
+    question:
+      'De ce este important să nu acceptăm prietenii online de la străini?',
     options: [
-      'Dau informații personale',
-      'Vorbesc doar cu prieteni',
-      'Descărc orice joc',
-      'Deschid toate emailurile',
+      'Pentru că pot trimite invitații neinteresante',
+      'Pentru că îți pot trimite temele',
+      'Pentru că pot fi persoane rău intenționate',
+      'Pentru că nu știu să scrie corect',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Ce comportament nu este potrivit pe internet?',
+    options: [
+      'Să comentezi frumos la poze',
+      'Să postezi lucruri despre alți colegi care i-ar putea supăra',
+      'Să ceri ajutorul unui adult',
+      'Să folosești emoji-uri',
     ],
     correctAnswer: 1,
   },
   {
-    question: 'Cum protejezi tableta sau telefonul?',
+    question: 'Ce trebuie să faci dacă primești un mesaj care te sperie?',
     options: [
-      'O las oriunde',
-      'Folosesc o parolă',
-      'O împrumut oricui',
-      'Nu am grijă de ea',
+      'Îl închizi și uiți de el',
+      'Îl trimiți colegului tău',
+      'Îl postezi pe rețele sociale',
+      'Îl arăți imediat unui adult',
+    ],
+    correctAnswer: 3,
+  },
+  {
+    question:
+      'Ce reprezintă datele personale online, cum ar fi poze și parole?',
+    options: [
+      'Fișiere neimportante',
+      'Mesaje automate',
+      'Informații valoroase ce trebuie protejate',
+      'Glume amuzante pentru prieteni',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question:
+      'De ce e important să verificăm un site cu un adult dacă pare ciudat?',
+    options: [
+      'Pentru a-l salva în calculator',
+      'Pentru că adulții pot citi mai repede',
+      'Pentru a ne asigura că nu e periculos',
+      'Pentru a găsi jocuri noi',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Care este rolul unui antivirus?',
+    options: [
+      'Să decoreze calculatorul',
+      'Să blocheze fișiere periculoase și viruși',
+      'Să îți creeze teme automat',
+      'Să mărească volumul sunetului',
+    ],
+    correctAnswer: 1,
+  },
+  {
+    question: 'De ce trebuie să faci actualizările calculatorului?',
+    options: [
+      'Pentru a avea acces la jocuri noi',
+      'Pentru a schimba culoarea tastelor',
+      'Pentru a menține calculatorul sigur și rapid',
+      'Pentru a șterge aplicațiile vechi',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Ce pericol poate aduce un stick USB necunoscut?',
+    options: [
+      'Poate conține muzică neplăcută',
+      'Poate aduce viruși în calculator',
+      'Poate șterge parola Wi-Fi',
+      'Poate bloca ecranul',
+    ],
+    correctAnswer: 1,
+  },
+  {
+    question:
+      'Ce trebuie să faci înainte de a instala un joc de pe un site necunoscut?',
+    options: [
+      'Să-l descarci cât mai repede',
+      'Să îl trimiți prietenilor',
+      'Să întrebi un adult dacă este sigur',
+      'Să-l deschizi și să vezi ce e',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Ce rol are parola la pornirea calculatorului?',
+    options: [
+      'Să pornească mai repede',
+      'Să asculți muzică mai ușor',
+      'Să împiedice accesul altora fără permisiune',
+      'Să afișeze un mesaj de bun venit',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'De ce NU e bine să amâni actualizările sistemului?',
+    options: [
+      'Pentru că ocupă spațiu',
+      'Pentru că opresc sunetul',
+      'Pentru că te expun la riscuri de securitate',
+      'Pentru că fac calculatorul mai lent',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Ce se poate întâmpla dacă cineva îți află parola?',
+    options: [
+      'Poate posta lucruri în numele tău sau șterge date',
+      'Primește teme în locul tău',
+      'Îți trimite flori',
+      'Îți trimite felicitări',
+    ],
+    correctAnswer: 0,
+  },
+  {
+    question: 'Cui avem voie să spunem parola?',
+    options: [
+      'Celui mai bun coleg',
+      'Oricui pare prietenos',
+      'Doar părinților',
+      'Oricărui profesor',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'De ce NU trebuie să scriem parola pe bilețele?',
+    options: [
+      'Pentru că ocupă spațiu',
+      'Pentru că le poate găsi altcineva',
+      'Pentru că hârtia se poate pierde',
+      'Pentru că e prea greu de citit',
+    ],
+    correctAnswer: 1,
+  },
+  {
+    question:
+      'Ce trebuie să faci dacă primești un mesaj în care ți se cere parola?',
+    options: [
+      'O trimiți rapid',
+      'O ignori și nu spui nimănui',
+      'O spui părinților și NU o trimiți',
+      'O scrii într-un caiet la școală',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question:
+      'De ce nu e bine să spui parola nici măcar unui prieten apropiat?',
+    options: [
+      'Pentru că o poate uita',
+      'Pentru că ar putea să o spună altcuiva',
+      'Pentru că nu are calculator',
+      'Pentru că nu știe să o folosească',
+    ],
+    correctAnswer: 1,
+  },
+  {
+    question:
+      'Cum ar trebui să reacționezi dacă cineva pretinde că este administratorul unui joc și cere parola?',
+    options: [
+      'Să te grăbești să i-o dai',
+      'Să verifici pe internet cine este',
+      'Să o spui doar dacă ai încredere',
+      'Să nu o spui și să anunți un adult',
+    ],
+    correctAnswer: 3,
+  },
+  {
+    question: 'Cum trebuie să fie o parolă sigură?',
+    options: [
+      'Scurtă și ușor de scris',
+      'Cu litere mari, mici, cifre și simboluri',
+      'Doar cu numele tău',
+      'Formată din cuvinte simple',
+    ],
+    correctAnswer: 1,
+  },
+  {
+    question:
+      'De ce NU este recomandat să folosești data de naștere în parolă?',
+    options: [
+      'Pentru că e greu de scris',
+      'Pentru că nu are simboluri',
+      'Pentru că e ușor de ghicit',
+      'Pentru că nu e în engleză',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Ce exemplu de parolă este considerat slab în lecție?',
+    options: ['Pisica!2024', 'Ana!Joc23', '123456', 'Verde8@Copac'],
+    correctAnswer: 2,
+  },
+  {
+    question:
+      'Ce truc este oferit în lecție pentru a crea o parolă ușor de ținut minte?',
+    options: [
+      'Să o scrii pe mână',
+      'Să alegi un cuvânt preferat',
+      'Să folosești o propoziție cunoscută',
+      'Să o înregistrezi audio',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Cât de des este recomandat să schimbi parola?',
+    options: [
+      'La fiecare 2-3 luni',
+      'O dată pe an',
+      'Doar dacă o uiți',
+      'Niciodată',
+    ],
+    correctAnswer: 0,
+  },
+  {
+    question: 'De ce este important ca parola să aibă și simboluri speciale?',
+    options: [
+      'Pentru că arată mai bine',
+      'Pentru că simbolurile o fac mai greu de spart',
+      'Pentru că nu sunt recunoscute de roboți',
+      'Pentru că ajută la sunet',
+    ],
+    correctAnswer: 1,
+  },
+  {
+    question:
+      'Ce metodă poate fi folosită pentru a verifica dacă o parolă este sigură?',
+    options: [
+      'Să o întrebi pe colega ta',
+      'Să vezi dacă o ține minte fratele tău',
+      'Să folosești un generator de parole sau un adult',
+      'Să o scrii pe telefon',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Ce NU este o parolă bună?',
+    options: ['Ana2024Joc!', 'Pisica123', '@VerdeMic2023', 'AjR@2024!'],
+    correctAnswer: 1,
+  },
+  {
+    question: 'Care este un avantaj al schimbării regulate a parolei?',
+    options: [
+      'Nu mai trebuie să o ții minte',
+      'Poți folosi cuvinte mai scurte',
+      'Eviți ca cineva să o folosească pe termen lung',
+      'Parola rămâne aceeași, dar mai frumoasă',
+    ],
+    correctAnswer: 2,
+  },
+  {
+    question: 'Ce caracteristică are o parolă memorabilă dar sigură?',
+    options: [
+      'Este creată dintr-o frază ușor de reținut',
+      'Este scurtă',
+      'Are doar cifre',
+      'Este scrisă în caiet',
+    ],
+    correctAnswer: 0,
+  },
+  {
+    question: 'Ce combinație este cel mai des recomandată într-o parolă?',
+    options: [
+      'Cifre + litere mari',
+      'Doar simboluri',
+      'Litere mici + cifre',
+      'Litere mari, mici, cifre și simboluri',
+    ],
+    correctAnswer: 3,
+  },
+  {
+    question: 'De ce NU trebuie să folosești numele tău în parolă?',
+    options: [
+      'Pentru că este greu de tastat',
+      'Pentru că poate fi ușor de ghicit de către alții',
+      'Pentru că se uită',
+      'Pentru că nu e unic',
     ],
     correctAnswer: 1,
   },
 ];
 
+// Function to get 4 random questions
+function getRandomQuestions(): QuizQuestion[] {
+  const shuffled = [...allQuizQuestions].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, 4);
+}
+
+// Feedback explanations for each question
+const questionFeedback: Record<number, string> = {
+  0: 'Securitatea cibernetică înseamnă protejarea ta când folosești internetul. Nu înseamnă să instalezi jocuri gratuite sau să te conectezi la orice rețea Wi-Fi.',
+  1: 'Nu ar trebui să acceptăm prietenii online de la străini pentru că pot fi persoane rău intenționate care ar putea să ne facă rău.',
+  2: 'Nu este potrivit să postezi lucruri despre alți colegi care i-ar putea supăra. Este important să fim respectuoși online.',
+  3: 'Când primești un mesaj care te sperie, ar trebui să-l arăți imediat unui adult care te poate ajuta.',
+  4: 'Datele personale online, cum ar fi poze și parole, sunt informații valoroase ce trebuie protejate, nu fișiere neimportante.',
+  5: 'Este important să verificăm un site cu un adult dacă pare ciudat pentru a ne asigura că nu e periculos.',
+  6: 'Rolul unui antivirus este să blocheze fișiere periculoase și viruși, nu să decoreze calculatorul.',
+  7: 'Trebuie să faci actualizările calculatorului pentru a menține calculatorul sigur și rapid, nu doar pentru a avea acces la jocuri noi.',
+  8: 'Un stick USB necunoscut poate aduce viruși în calculator, deci trebuie să fim atenți.',
+  9: 'Înainte de a instala un joc de pe un site necunoscut, trebuie să întrebi un adult dacă este sigur.',
+  10: 'Parola la pornirea calculatorului are rolul de a împiedica accesul altora fără permisiune, nu de a porni mai repede.',
+  11: 'Nu e bine să amâni actualizările sistemului pentru că te expun la riscuri de securitate.',
+  12: 'Dacă cineva îți află parola, poate posta lucruri în numele tău sau șterge date.',
+  13: 'Avem voie să spunem parola doar părinților, nu colegilor sau oricui pare prietenos.',
+  14: 'Nu trebuie să scriem parola pe bilețele pentru că le poate găsi altcineva.',
+  15: 'Dacă primești un mesaj în care ți se cere parola, trebuie să o spui părinților și NU să o trimiți.',
+  16: 'Nu e bine să spui parola nici măcar unui prieten apropiat pentru că ar putea să o spună altcuiva.',
+  17: 'Dacă cineva pretinde că este administratorul unui joc și cere parola, trebuie să nu o spui și să anunți un adult.',
+  18: 'O parolă sigură trebuie să fie cu litere mari, mici, cifre și simboluri, nu scurtă și ușor de scris.',
+  19: 'Nu este recomandat să folosești data de naștere în parolă pentru că e ușor de ghicit.',
+  20: "Parola '123456' este considerată slabă în lecție pentru că este prea simplă și ușor de ghicit.",
+  21: 'Un truc pentru a crea o parolă ușor de ținut minte este să folosești o propoziție cunoscută.',
+  22: 'Este recomandat să schimbi parola la fiecare 2-3 luni, nu o dată pe an sau niciodată.',
+  23: 'Este important ca parola să aibă și simboluri speciale pentru că simbolurile o fac mai greu de spart.',
+  24: 'Pentru a verifica dacă o parolă este sigură, poți folosi un generator de parole sau un adult.',
+  25: "Parola 'Pisica123' nu este o parolă bună pentru că nu conține simboluri speciale.",
+  26: 'Un avantaj al schimbării regulate a parolei este că eviți ca cineva să o folosească pe termen lung.',
+  27: 'O parolă memorabilă dar sigură este creată dintr-o frază ușor de reținut.',
+  28: 'Cea mai des recomandată combinație într-o parolă este litere mari, mici, cifre și simboluri.',
+  29: 'Nu trebuie să folosești numele tău în parolă pentru că poate fi ușor de ghicit de către alții.',
+};
+
 const PlatformerGame: React.FC = () => {
+  const router = useRouter();
   const [solvedComputers, setSolvedComputers] = useState<boolean[]>([
     false,
     false,
@@ -75,7 +402,7 @@ const PlatformerGame: React.FC = () => {
   const [activeQuiz, setActiveQuiz] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [securityLevel, setSecurityLevel] = useState('Low');
-  const [showTutorial, setShowTutorial] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [engineerPosition, setEngineerPosition] = useState({
     left: 40,
     top: 150,
@@ -94,13 +421,24 @@ const PlatformerGame: React.FC = () => {
     { x: 220, y: 120, eliminated: false, type: 'trojan' },
   ]);
   const [score, setScore] = useState(0);
-  const [movementDirection, setMovementDirection] = useState<string | null>(
-    null
-  );
   const [correctAnswersInARow, setCorrectAnswersInARow] = useState(0);
   const [showTip, setShowTip] = useState(false);
   const [currentTip, setCurrentTip] = useState('');
   const [progressAnimation] = useState(new Animated.Value(0));
+  const [currentQuizQuestions, setCurrentQuizQuestions] = useState<
+    QuizQuestion[]
+  >([]);
+  const [failedAttempts, setFailedAttempts] = useState<Record<number, number>>(
+    {}
+  );
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [currentFeedback, setCurrentFeedback] = useState('');
+  const [failedQuestionIndex, setFailedQuestionIndex] = useState<number | null>(
+    null
+  );
+  const [showHackerLab, setShowHackerLab] = useState(false);
+  const [levelCompleted, setLevelCompleted] = useState(false);
+  const [isProcessingMalware, setIsProcessingMalware] = useState(false);
 
   // Security tips in Romanian
   const securityTips = [
@@ -112,22 +450,13 @@ const PlatformerGame: React.FC = () => {
     'Ai grijă ce linkuri deschizi!',
   ];
 
-  // Add movement speed and boundaries
-  const MOVEMENT_SPEED = 10;
-  const BOUNDARY = {
-    minX: 0,
-    maxX: width - 50, // Adjust based on engineer width
-    minY: 0,
-    maxY: AVAILABLE_HEIGHT - 100, // Adjust based on engineer height
-  };
+  // Initialize random questions when component mounts
+  useEffect(() => {
+    setCurrentQuizQuestions(getRandomQuestions());
+  }, []);
 
   // Animation timing
   useEffect(() => {
-    // Hide tutorial after 5 seconds
-    const tutorialTimer = setTimeout(() => {
-      setShowTutorial(false);
-    }, 5000);
-
     // Simulate more frequent hacker attacks
     const attackInterval = setInterval(() => {
       if (Math.random() > 0.5 && !solvedComputers.every((solved) => solved)) {
@@ -136,28 +465,21 @@ const PlatformerGame: React.FC = () => {
     }, 8000);
 
     return () => {
-      clearTimeout(tutorialTimer);
       clearInterval(attackInterval);
     };
   }, [solvedComputers]);
 
-  // Add continuous movement when holding down arrow keys
-  useEffect(() => {
-    if (!movementDirection) return;
-
-    const moveInterval = setInterval(() => {
-      moveEngineer(movementDirection as 'up' | 'down' | 'left' | 'right');
-    }, 100);
-
-    return () => clearInterval(moveInterval);
-  }, [movementDirection]);
-
   // Check for malware elimination with improved feedback
   useEffect(() => {
+    if (isProcessingMalware) return; // Prevent re-entry while processing
+
     const checkMalwareElimination = () => {
       const updatedMalware = [...malwareThreats];
-      let updated = false;
+      let hasUpdates = false;
       let newScore = score;
+      let newProgress = gameProgress;
+      let shouldShowTip = false;
+      let tipToShow = '';
 
       malwareThreats.forEach((threat, index) => {
         if (!threat.eliminated) {
@@ -168,37 +490,63 @@ const PlatformerGame: React.FC = () => {
 
           if (distance < 30) {
             updatedMalware[index].eliminated = true;
-            updated = true;
+            hasUpdates = true;
             newScore += 15;
-            Vibration.vibrate(100); // Feedback for elimination
-
-            // Show random security tip
-            const randomTip =
+            newProgress = Math.min(100, gameProgress + 8);
+            shouldShowTip = true;
+            tipToShow =
               securityTips[Math.floor(Math.random() * securityTips.length)];
-            setCurrentTip(randomTip);
-            setShowTip(true);
-            setTimeout(() => setShowTip(false), 3000);
-
-            // Animate progress bar
-            const newProgress = Math.min(100, gameProgress + 8);
-            Animated.timing(progressAnimation, {
-              toValue: newProgress / 100,
-              duration: 500,
-              useNativeDriver: false,
-            }).start();
-            setGameProgress(newProgress);
+            Vibration.vibrate(100);
           }
         }
       });
 
-      if (updated) {
+      if (hasUpdates) {
+        setIsProcessingMalware(true);
+        // Batch updates together
         setMalwareThreats(updatedMalware);
         setScore(newScore);
+        setGameProgress(newProgress);
+
+        if (shouldShowTip) {
+          setCurrentTip(tipToShow);
+          setShowTip(true);
+          setTimeout(() => {
+            setShowTip(false);
+            setIsProcessingMalware(false);
+          }, 3000);
+        } else {
+          setIsProcessingMalware(false);
+        }
+
+        // Animate progress bar
+        Animated.timing(progressAnimation, {
+          toValue: newProgress / 100,
+          duration: 500,
+          useNativeDriver: false,
+        }).start();
       }
     };
 
     checkMalwareElimination();
-  }, [engineerPosition]);
+  }, [engineerPosition.left, engineerPosition.top]);
+
+  const handleTeleportPress = () => {
+    // Verificăm doar dacă toate computerele sunt rezolvate
+    if (solvedComputers.every((solved) => solved)) {
+      console.log('Teleporting...'); // Debug log
+      Vibration.vibrate(100);
+      setShowHackerLab(true); // Activăm laboratorul hackerului
+      setCurrentTip('Ai găsit portalul secret!');
+      setShowTip(true);
+      setTimeout(() => setShowTip(false), 3000);
+    } else {
+      // Feedback dacă nu toate computerele sunt rezolvate
+      setCurrentTip('Rezolvă mai întâi toate provocările!');
+      setShowTip(true);
+      setTimeout(() => setShowTip(false), 3000);
+    }
+  };
 
   const handleComputerPress = (index: number) => {
     if (!solvedComputers[index]) {
@@ -218,13 +566,21 @@ const PlatformerGame: React.FC = () => {
   const handleAnswer = (answerIndex: number) => {
     if (activeQuiz !== null) {
       // Make sure we don't go out of bounds with the quiz questions
-      const questionIndex = activeQuiz % quizQuestions.length;
-      const question = quizQuestions[questionIndex];
+      const questionIndex = activeQuiz % currentQuizQuestions.length;
+      const question = currentQuizQuestions[questionIndex];
+
+      // Check if this is a retry after a failed attempt
+      const isRetry = failedAttempts[activeQuiz] === 1;
 
       if (answerIndex === question.correctAnswer) {
         const newSolvedComputers = [...solvedComputers];
         newSolvedComputers[activeQuiz] = true;
         setSolvedComputers(newSolvedComputers);
+
+        // Reset failed attempts for this computer
+        const newFailedAttempts = { ...failedAttempts };
+        delete newFailedAttempts[activeQuiz];
+        setFailedAttempts(newFailedAttempts);
 
         // Increment correct answers counter
         setCorrectAnswersInARow((prev) => prev + 1);
@@ -271,343 +627,184 @@ const PlatformerGame: React.FC = () => {
         setCurrentTip('Excelent! Ai rezolvat provocarea!');
         setShowTip(true);
         setTimeout(() => setShowTip(false), 3000);
-      } else {
-        // Wrong answer feedback
-        Vibration.vibrate(200);
-        setCorrectAnswersInARow(0);
 
-        // Show hint
-        setCurrentTip('Încearcă din nou! Gândește-te la securitate.');
-        setShowTip(true);
-        setTimeout(() => setShowTip(false), 3000);
+        setShowModal(false);
+        setActiveQuiz(null);
+      } else {
+        // Wrong answer handling
+        Vibration.vibrate(200);
+
+        // Check if this is the first or second attempt
+        if (!isRetry) {
+          // First attempt - give a second chance
+          const newFailedAttempts = { ...failedAttempts, [activeQuiz]: 1 };
+          setFailedAttempts(newFailedAttempts);
+
+          // Show hint for retry
+          setCurrentTip('Încearcă din nou! Ai încă o șansă.');
+          setShowTip(true);
+          setTimeout(() => setShowTip(false), 3000);
+        } else {
+          // Second failed attempt - show feedback and reset
+          setCorrectAnswersInARow(0);
+
+          // Find the question index in the allQuizQuestions array
+          const allQuestionsIndex = allQuizQuestions.findIndex(
+            (q) => q.question === question.question
+          );
+
+          // Set feedback and show feedback modal
+          setCurrentFeedback(
+            questionFeedback[allQuestionsIndex] ||
+              'Răspunsul corect era: ' +
+                question.options[question.correctAnswer]
+          );
+          setFailedQuestionIndex(activeQuiz);
+          setShowFeedback(true);
+
+          // Reset failed attempts for this computer
+          const newFailedAttempts = { ...failedAttempts };
+          delete newFailedAttempts[activeQuiz];
+          setFailedAttempts(newFailedAttempts);
+
+          setShowModal(false);
+        }
       }
-      setShowModal(false);
-      setActiveQuiz(null);
     }
   };
 
-  // Add movement handler with press and release functions
-  const moveEngineer = (direction: 'up' | 'down' | 'left' | 'right') => {
-    setEngineerPosition((current) => {
-      let newPosition = { ...current };
-
-      switch (direction) {
-        case 'up':
-          newPosition.top = Math.max(
-            BOUNDARY.minY,
-            current.top - MOVEMENT_SPEED
-          );
-          break;
-        case 'down':
-          newPosition.top = Math.min(
-            BOUNDARY.maxY,
-            current.top + MOVEMENT_SPEED
-          );
-          break;
-        case 'left':
-          newPosition.left = Math.max(
-            BOUNDARY.minX,
-            current.left - MOVEMENT_SPEED
-          );
-          break;
-        case 'right':
-          newPosition.left = Math.min(
-            BOUNDARY.maxX,
-            current.left + MOVEMENT_SPEED
-          );
-          break;
-      }
-
-      return newPosition;
-    });
+  const handleRetry = () => {
+    setShowFeedback(false);
+    setFailedQuestionIndex(null);
+    setShowModal(true);
   };
 
-  const handleDirectionPress = (
-    direction: 'up' | 'down' | 'left' | 'right'
-  ) => {
-    setMovementDirection(direction);
-    moveEngineer(direction);
+  const handleBackToLevels = () => {
+    // Generate new random questions when leaving the level
+    setCurrentQuizQuestions(getRandomQuestions());
+    router.back();
   };
 
-  const handleDirectionRelease = () => {
-    setMovementDirection(null);
+  // Handle position updates from the MovementController
+  const handlePositionChange = (newPosition: { left: number; top: number }) => {
+    setEngineerPosition(newPosition);
+  };
+
+  // Get the position type for a computer workstation
+  const getComputerPosition = (index: number) => {
+    switch (index) {
+      case 0:
+        return 'topLeft';
+      case 1:
+        return 'topRight';
+      case 2:
+        return 'bottomLeft';
+      case 3:
+        return 'bottomRight';
+      default:
+        return 'topLeft';
+    }
+  };
+
+  const handleHackerLabComplete = () => {
+    setShowHackerLab(false);
+    setLevelCompleted(true);
+    // Afișează mesajul de succes final
+    setShowSuccessMessage(true);
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+      router.back(); // Întoarce la lista de nivele
+    }, 3000);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Score Display */}
-      <View style={styles.scoreContainer}>
-        <Text style={styles.scoreText}>SCOR: {score}</Text>
-      </View>
+    <SafeAreaView style={platformerGameStyles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Progress Bar - Animated */}
-      <View style={styles.progressContainer}>
-        <Animated.View
-          style={[
-            styles.progressBar,
-            {
-              width: progressAnimation.interpolate({
-                inputRange: [0, 1],
-                outputRange: ['0%', '100%'],
-              }),
-            },
-          ]}
-        />
-        <Text style={styles.progressText}>{gameProgress}% Securizat</Text>
-      </View>
+      {/* Navigation Controls */}
+      <NavigationControls onBackPress={handleBackToLevels} />
+
+      {/* Level title */}
+      <LevelTitle title="Level 1: Cyber Security Basics" />
+
+      {/* Score Display */}
+      <ScoreDisplay score={score} />
+
+      {/* Progress Bar */}
+      <ProgressBar
+        progress={gameProgress}
+        progressAnimation={progressAnimation}
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={true}
       >
-        <View style={styles.labRoom}>
+        <View style={styles.mainContent}>
           {/* Lab Background with Grid */}
-          <View
-            style={[
-              styles.labBackground,
-              hackerAttack && styles.hackerAttackBackground,
-            ]}
-          >
-            <View style={styles.gridLines}>
-              {[...Array(10)].map((_, i) => (
-                <View
-                  key={`h${i}`}
-                  style={[styles.horizontalLine, { top: `${i * 10}%` }]}
-                />
-              ))}
-              {[...Array(10)].map((_, i) => (
-                <View
-                  key={`v${i}`}
-                  style={[styles.verticalLine, { left: `${i * 10}%` }]}
-                />
-              ))}
-            </View>
-          </View>
+          <GridBackground isUnderAttack={hackerAttack} />
 
           {/* Security Status Display */}
-          <View style={styles.securityStatus}>
-            <Text style={styles.securityLabel}>NIVEL SECURITATE:</Text>
-            <View
-              style={[
-                styles.securityIndicator,
-                securityLevel === 'Low' && styles.securityLow,
-                securityLevel === 'Medium' && styles.securityMedium,
-                securityLevel === 'High' && styles.securityHigh,
-              ]}
-            >
-              <Text style={styles.securityText}>
-                {securityLevel === 'Low'
-                  ? 'Scăzut'
-                  : securityLevel === 'Medium'
-                  ? 'Mediu'
-                  : 'Ridicat'}
-              </Text>
-            </View>
-            {hackerAttack && (
-              <View style={styles.alertBadge}>
-                <Text style={styles.alertText}>ATAC DETECTAT!</Text>
-              </View>
-            )}
-          </View>
+          <SecurityStatus
+            securityLevel={securityLevel as 'Low' | 'Medium' | 'High'}
+            isUnderAttack={hackerAttack}
+          />
 
           {/* Main Content Area */}
-          <View style={styles.mainContent}>
+          <View style={platformerGameStyles.mainContent}>
             {/* Left Section - Server Racks */}
-            <View style={styles.leftSection}>
-              <View style={styles.serverRack}>
-                {[...Array(6)].map((_, i) => (
-                  <View key={i} style={styles.server}>
-                    <View style={styles.serverLights}>
-                      <View style={[styles.light, styles.lightGreen]} />
-                      <View style={[styles.light, styles.lightBlue]} />
-                    </View>
-                  </View>
-                ))}
+            <View style={platformerGameStyles.leftSection}>
+              {/* srever left */}
+              <View>
+                <ServerLeft />
               </View>
-
               {/* Network Cables */}
-              <View style={styles.networkCables}>
-                {['#FF5252', '#4CAF50', '#2196F3', '#FFEB3B'].map(
-                  (color, i) => (
-                    <View
-                      key={i}
-                      style={[styles.cable, { backgroundColor: color }]}
-                    />
-                  )
-                )}
+              <View style={platformerGameStyles.networkCables}>
+                <NetworkCables />
               </View>
             </View>
 
             {/* Center Section - Workstations */}
-            <View style={styles.centerSection}>
-              <View style={styles.workstationArea}>
+            <View style={platformerGameStyles.centerSection}>
+              <View style={platformerGameStyles.workstationArea}>
                 {[0, 1, 2, 3].map((index) => (
-                  <TouchableOpacity
+                  <ComputerWorkstation
                     key={index}
-                    style={[
-                      styles.desk,
-                      index % 2 === 0 ? styles.leftDesk : styles.rightDesk,
-                      index < 2 ? styles.topRow : styles.bottomRow,
-                      !solvedComputers[index] && styles.interactiveDesk,
-                    ]}
-                    onPress={() => handleComputerPress(index)}
-                  >
-                    <View style={styles.monitor}>
-                      <View
-                        style={[
-                          styles.screen,
-                          solvedComputers[index] && styles.solvedScreen,
-                          hackerAttack &&
-                            !solvedComputers[index] &&
-                            styles.hackedScreen,
-                        ]}
-                      >
-                        <View style={styles.screenContent} />
-                        <View style={styles.screenContent} />
-                        {solvedComputers[index] && (
-                          <View style={styles.checkmark}>
-                            <Text style={styles.checkmarkText}>✓</Text>
-                          </View>
-                        )}
-                        {hackerAttack && !solvedComputers[index] && (
-                          <Text style={styles.hackerText}>!</Text>
-                        )}
-                      </View>
-                      <View style={styles.monitorStand} />
-                    </View>
-                    <View style={styles.keyboard}>
-                      {[...Array(3)].map((_, j) => (
-                        <View key={j} style={styles.keyboardRow} />
-                      ))}
-                    </View>
-                    <View style={styles.mouse} />
-                  </TouchableOpacity>
+                    index={index}
+                    isSolved={solvedComputers[index]}
+                    isUnderAttack={hackerAttack}
+                    onPress={handleComputerPress}
+                    position={
+                      getComputerPosition(index) as
+                        | 'topLeft'
+                        | 'topRight'
+                        | 'bottomLeft'
+                        | 'bottomRight'
+                    }
+                  />
                 ))}
               </View>
 
-              {/* Malware Threats with Pulse Animation */}
+              {/* Malware Threats */}
               {malwareThreats.map(
                 (threat, index) =>
                   !threat.eliminated && (
-                    <Animated.View
+                    <MalwareThreat
                       key={index}
-                      style={[
-                        styles.malwareThreat,
-                        {
-                          left: threat.x,
-                          top: threat.y,
-                          transform: [
-                            {
-                              scale: new Animated.Value(1).interpolate({
-                                inputRange: [0, 0.5, 1],
-                                outputRange: [1, 1.2, 1],
-                                extrapolate: 'clamp',
-                              }),
-                            },
-                          ],
-                        },
-                      ]}
-                    >
-                      <Text style={styles.malwareIcon}>
-                        {threat.type === 'virus'
-                          ? '🦠'
-                          : threat.type === 'trojan'
-                          ? '🐴'
-                          : threat.type === 'ransomware'
-                          ? '🔒'
-                          : '🐛'}
-                      </Text>
-                    </Animated.View>
+                      type={threat.type}
+                      position={{ x: threat.x, y: threat.y }}
+                    />
                   )
               )}
 
-              {/* Movable Engineer Character */}
-              <Animated.View
-                style={[
-                  styles.staticEngineer,
-                  {
-                    left: engineerPosition.left,
-                    top: engineerPosition.top,
-                  },
-                ]}
-              >
-                {/* Chair */}
-                <View style={styles.chair}>
-                  <View style={styles.chairBack} />
-                  <View style={styles.chairSeat} />
-                  <View style={styles.chairBase} />
-                  <View style={styles.chairWheels}>
-                    <View style={styles.wheel} />
-                    <View style={styles.wheel} />
-                    <View style={styles.wheel} />
-                  </View>
-                </View>
-
-                {/* Engineer - Sitting position */}
-                <View style={styles.engineerBody}>
-                  <View style={styles.head}>
-                    <View style={styles.hair} />
-                    <View style={styles.face}>
-                      <View style={styles.glasses} />
-                      <View style={styles.smile} />
-                    </View>
-                  </View>
-                  <View style={[styles.body, styles.sittingBody]}>
-                    <View style={styles.labCoat} />
-                    <View style={styles.badge} />
-                  </View>
-                  <View style={[styles.legs, styles.sittingLegs]}>
-                    <View style={[styles.leftLeg, styles.sittingLeg]} />
-                    <View style={[styles.rightLeg, styles.sittingLeg]} />
-                  </View>
-                </View>
-              </Animated.View>
+              {/* Engineer Character */}
+              <EngineerCharacter position={engineerPosition} />
             </View>
 
             {/* Right Section - Security Features */}
-            <View style={styles.rightSection}>
-              {/* Security Monitors */}
-              <View style={styles.securityMonitors}>
-                <View style={styles.securityMonitor}>
-                  <View style={styles.monitorScreen}>
-                    <View style={styles.monitorGraph} />
-                  </View>
-                </View>
-                <View style={styles.securityMonitor}>
-                  <View style={styles.monitorScreen}>
-                    <View style={styles.monitorData} />
-                    <View style={styles.monitorData} />
-                    <View style={styles.monitorData} />
-                  </View>
-                </View>
-              </View>
-
-              {/* Security Features */}
-              <View style={styles.securityFeatures}>
-                <View style={styles.camera}>
-                  <View style={styles.cameraLens} />
-                  <View style={styles.cameraBody} />
-                </View>
-                <View style={styles.keypad}>
-                  {[...Array(9)].map((_, i) => (
-                    <View key={i} style={styles.keypadButton} />
-                  ))}
-                </View>
-              </View>
-
-              {/* Firewall Status */}
-              <View style={styles.firewallStatus}>
-                <Text style={styles.firewallLabel}>FIREWALL</Text>
-                <View
-                  style={[
-                    styles.firewallIndicator,
-                    solvedComputers.every((solved) => solved)
-                      ? styles.firewallActive
-                      : styles.firewallInactive,
-                  ]}
-                />
-              </View>
-            </View>
+            <RightSection
+              isFirewallActive={solvedComputers.every((solved) => solved)}
+            />
           </View>
 
           {/* Bottom Padding to ensure content is above tab bar */}
@@ -615,128 +812,82 @@ const PlatformerGame: React.FC = () => {
         </View>
       </ScrollView>
 
+      {/* Movement Controller */}
+      <MovementController
+        initialPosition={engineerPosition}
+        onPositionChange={handlePositionChange}
+      />
+
       {/* Tutorial Overlay */}
       {showTutorial && (
-        <View style={styles.tutorialOverlay}>
-          <View style={styles.tutorialBox}>
-            <Text style={styles.tutorialTitle}>
-              Bine ai venit, Inginer de Securitate!
-            </Text>
-            <Text style={styles.tutorialText}>
-              Misiunea ta este să securizezi toate computerele din laborator.
-              Apasă pe computere pentru a rezolva provocările de securitate.
-            </Text>
-            <TouchableOpacity
-              style={styles.tutorialButton}
-              onPress={() => setShowTutorial(false)}
-            >
-              <Text style={styles.tutorialButtonText}>Am înțeles!</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <TutorialOverlay onClose={() => setShowTutorial(false)} />
       )}
 
       {/* Success Message */}
-      {showSuccessMessage && (
-        <View style={styles.successOverlay}>
-          <View style={styles.successBox}>
-            <Text style={styles.successTitle}>Securitate Restabilită!</Text>
-            <Text style={styles.successText}>
-              Bravo! Ai securizat toate sistemele din laborator.
-            </Text>
-            <View style={styles.successIcon}>
-              <Text style={styles.successIconText}>✓</Text>
-            </View>
-          </View>
-        </View>
-      )}
+      <SuccessMessage visible={showSuccessMessage} />
 
       {/* Quiz Modal */}
-      <Modal visible={showModal} transparent={true} animationType="fade">
-        <View style={styles.modalOverlay}>
+      <QuizModal
+        visible={showModal}
+        activeQuiz={activeQuiz}
+        questions={currentQuizQuestions}
+        onAnswer={handleAnswer}
+        isRetry={activeQuiz !== null ? failedAttempts[activeQuiz] === 1 : false}
+      />
+
+      {/* Feedback Modal */}
+      <Modal visible={showFeedback} transparent={true} animationType="fade">
+        <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            {activeQuiz !== null && (
-              <>
-                <Text style={styles.modalTitle}>Provocare de Securitate</Text>
-                <Text style={styles.questionText}>
-                  {quizQuestions[activeQuiz % quizQuestions.length].question}
-                </Text>
-                {quizQuestions[activeQuiz % quizQuestions.length].options.map(
-                  (option, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.optionButton,
-                        { transform: [{ scale: 1 }] },
-                      ]}
-                      onPress={() => handleAnswer(index)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={styles.optionText}>{option}</Text>
-                    </TouchableOpacity>
-                  )
-                )}
-              </>
-            )}
+            <Text style={styles.modalTitle}>Feedback</Text>
+            <Text style={styles.feedbackText}>{currentFeedback}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+              <Text style={styles.retryButtonText}>Încearcă din nou</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Control buttons at the bottom */}
-      <View style={styles.controls}>
-        <View style={styles.controlRow}>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPressIn={() => handleDirectionPress('up')}
-            onPressOut={handleDirectionRelease}
-          >
-            <Text style={styles.controlButtonText}>↑</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.controlRow}>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPressIn={() => handleDirectionPress('left')}
-            onPressOut={handleDirectionRelease}
-          >
-            <Text style={styles.controlButtonText}>←</Text>
-          </TouchableOpacity>
-          <View style={styles.controlButtonSpacer} />
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPressIn={() => handleDirectionPress('right')}
-            onPressOut={handleDirectionRelease}
-          >
-            <Text style={styles.controlButtonText}>→</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.controlRow}>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPressIn={() => handleDirectionPress('down')}
-            onPressOut={handleDirectionRelease}
-          >
-            <Text style={styles.controlButtonText}>↓</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
       {/* Game Instructions */}
-      <TouchableOpacity
-        style={styles.helpButton}
-        onPress={() => setShowTutorial(true)}
-      >
-        <Text style={styles.helpButtonText}>?</Text>
-      </TouchableOpacity>
+      <HelpButton onPress={() => setShowTutorial(true)} />
 
       {/* Security Tip Popup */}
-      {showTip && (
-        <View style={styles.tipContainer}>
-          <View style={styles.tipBox}>
-            <Text style={styles.tipText}>{currentTip}</Text>
-          </View>
-        </View>
+      <SecurityTip tip={currentTip} visible={showTip} />
+
+      {/* Teleport Area Indicator cu zonă apăsabilă */}
+      {solvedComputers.every((solved) => solved) && (
+        <TouchableOpacity
+          style={[
+            styles.teleportArea,
+            {
+              position: 'absolute',
+              right: 150,
+              bottom: 120,
+              width: 120,
+              height: 120,
+              borderRadius: 60,
+              borderWidth: 3,
+              borderColor: '#00ff00',
+              backgroundColor: 'rgba(0, 255, 0, 0.2)',
+              zIndex: 1000,
+            },
+          ]}
+          onPress={handleTeleportPress}
+          activeOpacity={0.6}
+        >
+          <Text style={styles.teleportText}>Apasă pentru{'\n'}teleportare</Text>
+        </TouchableOpacity>
       )}
+
+      {/* Hacker Lab */}
+      <HackerLab
+        visible={showHackerLab}
+        onComplete={handleHackerLabComplete}
+        onExit={() => {
+          console.log('Exiting hacker lab'); // Debug log
+          setShowHackerLab(false);
+        }}
+      />
     </SafeAreaView>
   );
 };
@@ -744,822 +895,110 @@ const PlatformerGame: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#000',
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: TAB_BAR_HEIGHT + 20, // Add extra padding at bottom
-  },
-  labRoom: {
-    flex: 1,
-    position: 'relative',
-    minHeight: AVAILABLE_HEIGHT * 0.9, // Use 90% of available height
-  },
-  labBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#1a1a1a',
-  },
-  gridLines: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  horizontalLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-  },
-  verticalLine: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: 1,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-  },
-  securityStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: 5,
-    margin: 10,
-  },
-  securityLabel: {
-    color: '#fff',
-    fontSize: 12,
-    marginRight: 10,
-  },
-  securityIndicator: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 3,
-  },
-  securityText: {
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  securityLow: {
-    backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    borderWidth: 1,
-    borderColor: '#FF5252',
-  },
-  securityMedium: {
-    backgroundColor: 'rgba(255, 193, 7, 0.2)',
-    borderWidth: 1,
-    borderColor: '#FFC107',
-  },
-  securityHigh: {
-    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-    borderWidth: 1,
-    borderColor: '#4CAF50',
   },
   mainContent: {
-    flexDirection: 'row',
-    padding: 10,
-    justifyContent: 'space-between',
+    flex: 1,
+    position: 'relative',
   },
   leftSection: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    maxWidth: 80,
-  },
-  serverRack: {
-    width: '90%',
-    aspectRatio: 0.5,
-    backgroundColor: '#2a2a2a',
-    borderRadius: 8,
-    padding: 5,
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  server: {
-    height: '12%',
-    backgroundColor: '#333',
-    borderRadius: 4,
-    padding: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  serverLights: {
-    flexDirection: 'row',
-    gap: 3,
-  },
-  light: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-  },
-  lightGreen: {
-    backgroundColor: '#4CAF50',
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-  },
-  lightBlue: {
-    backgroundColor: '#2196F3',
-    shadowColor: '#2196F3',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-  },
-  networkCables: {
-    width: '100%',
-    height: 50,
-    justifyContent: 'space-around',
-    marginTop: 10,
-  },
-  cable: {
-    height: 2,
-    width: '80%',
-    marginVertical: 2,
+    position: 'relative',
   },
   centerSection: {
     flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
     position: 'relative',
   },
   workstationArea: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    padding: 10,
-  },
-  desk: {
-    width: '40%',
-    aspectRatio: 1.5,
-    padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#2a2a2a',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    margin: 5,
-  },
-  leftDesk: {
-    marginRight: 10,
-  },
-  rightDesk: {
-    marginLeft: 10,
-  },
-  topRow: {
-    marginBottom: 10,
-  },
-  bottomRow: {
-    marginTop: 10,
-  },
-  monitor: {
-    width: '90%',
-    height: '60%',
-    alignItems: 'center',
-  },
-  screen: {
-    width: '100%',
-    height: '85%',
-    backgroundColor: '#111',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#444',
-    padding: 5,
-    justifyContent: 'space-around',
-    position: 'relative',
-  },
-  solvedScreen: {
-    backgroundColor: '#1a4a1a',
-    borderColor: '#2d5a2d',
-  },
-  screenContent: {
-    height: 4,
-    backgroundColor: '#333',
-    borderRadius: 2,
-  },
-  checkmark: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -10 }, { translateY: -10 }],
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: 'rgba(76, 175, 80, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkmarkText: {
-    color: '#4CAF50',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  monitorStand: {
-    width: '20%',
-    height: '15%',
-    backgroundColor: '#444',
-    borderRadius: 4,
-  },
-  keyboard: {
-    width: '80%',
-    height: '20%',
-    backgroundColor: '#333',
-    marginTop: 5,
-    borderRadius: 4,
-    padding: 3,
-    justifyContent: 'space-around',
-  },
-  keyboardRow: {
-    height: 1,
-    backgroundColor: '#444',
-    borderRadius: 0.5,
-  },
-  mouse: {
-    position: 'absolute',
-    right: '15%',
-    bottom: '15%',
-    width: 10,
-    height: 15,
-    backgroundColor: '#444',
-    borderRadius: 5,
-  },
-  rightSection: {
     flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 5,
-    maxWidth: 100,
-  },
-  securityMonitors: {
-    width: '100%',
-    height: '40%',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  securityMonitor: {
-    width: '90%',
-    aspectRatio: 1.5,
-    backgroundColor: '#2a2a2a',
-    borderRadius: 8,
-    padding: 3,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  monitorScreen: {
-    flex: 1,
-    backgroundColor: '#111',
-    borderRadius: 4,
-    padding: 2,
-    justifyContent: 'space-around',
-  },
-  monitorGraph: {
-    height: 20,
-    backgroundColor: 'rgba(33, 150, 243, 0.2)',
-    borderRadius: 4,
-    borderTopWidth: 1,
-    borderColor: '#2196F3',
-  },
-  monitorData: {
-    height: 2,
-    backgroundColor: '#2196F3',
-    borderRadius: 1,
-    marginVertical: 1,
-  },
-  securityFeatures: {
-    width: '100%',
-    alignItems: 'center',
-    gap: 10,
-  },
-  camera: {
-    width: 20,
-    height: 25,
-    alignItems: 'center',
-  },
-  cameraLens: {
-    width: 15,
-    height: 15,
-    borderRadius: 7.5,
-    backgroundColor: '#111',
-    borderWidth: 1,
-    borderColor: '#444',
-  },
-  cameraBody: {
-    width: 8,
-    height: 10,
-    backgroundColor: '#333',
-    marginTop: -3,
-  },
-  keypad: {
-    width: 40,
-    height: 50,
-    backgroundColor: '#333',
-    borderRadius: 4,
-    padding: 3,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  keypadButton: {
-    width: 10,
-    height: 10,
-    backgroundColor: '#444',
-    borderRadius: 2,
-  },
-  firewallStatus: {
-    width: '80%',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  firewallLabel: {
-    color: '#fff',
-    fontSize: 10,
-    marginBottom: 3,
-  },
-  firewallIndicator: {
-    width: '100%',
-    height: 15,
-    borderRadius: 7.5,
-    borderWidth: 1,
-  },
-  firewallActive: {
-    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-    borderColor: '#4CAF50',
-  },
-  firewallInactive: {
-    backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    borderColor: '#FF5252',
-  },
-  staticEngineer: {
-    position: 'absolute',
-    width: 30,
-    height: 60,
-    alignItems: 'center',
-    zIndex: 10,
-    transform: [{ scale: 0.8 }],
-  },
-  engineerBody: {
-    position: 'absolute',
-    top: -15,
-  },
-  chair: {
-    width: 40,
-    height: 50,
     position: 'relative',
   },
-  chairBack: {
-    position: 'absolute',
-    width: 30,
-    height: 35,
-    backgroundColor: '#444',
-    borderRadius: 5,
-    top: 0,
-    left: 5,
-  },
-  chairSeat: {
-    position: 'absolute',
-    width: 40,
-    height: 10,
-    backgroundColor: '#444',
-    borderRadius: 5,
-    bottom: 15,
-  },
-  chairBase: {
-    position: 'absolute',
-    width: 10,
-    height: 15,
-    backgroundColor: '#333',
-    bottom: 5,
-    left: 15,
-  },
-  chairWheels: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 5,
-  },
-  wheel: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#222',
-  },
-  sittingBody: {
-    height: 30,
-    transform: [{ translateY: 5 }],
-  },
-  sittingLegs: {
-    height: 20,
-    transform: [{ translateY: -5 }],
-  },
-  sittingLeg: {
-    transform: [{ rotate: '90deg' }],
-  },
-  head: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#FFD5B5',
-    position: 'relative',
-  },
-  hair: {
-    position: 'absolute',
-    top: -4,
-    left: -2,
-    width: 28,
-    height: 18,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    backgroundColor: '#4A3626',
-    transform: [{ rotate: '-5deg' }],
-  },
-  face: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  glasses: {
-    width: 16,
-    height: 6,
-    backgroundColor: '#2196F3',
-    borderRadius: 3,
-    marginTop: 4,
-  },
-  smile: {
-    width: 8,
-    height: 4,
-    borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
-    backgroundColor: '#FF69B4',
-    marginTop: 2,
-  },
-  body: {
-    width: 30,
-    height: 35,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginTop: -4,
-    position: 'relative',
-  },
-  labCoat: {
+  networkCables: {
     position: 'absolute',
     top: 0,
-    left: -2,
-    right: -2,
-    bottom: 0,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#EEEEEE',
+    left: 0,
+    right: 0,
+    height: 100,
   },
-  badge: {
+  livesContainer: {
     position: 'absolute',
-    top: 5,
-    right: 2,
-    width: 10,
-    height: 15,
-    backgroundColor: '#FF5252',
-    borderRadius: 2,
-  },
-  legs: {
-    width: 24,
-    height: 25,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  leftLeg: {
-    width: 10,
-    height: '100%',
-    backgroundColor: '#4A4A4A',
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-  rightLeg: {
-    width: 10,
-    height: '100%',
-    backgroundColor: '#4A4A4A',
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-  modalOverlay: {
-    flex: 1,
+    top: 20,
+    right: 20,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: '#2a2a2a',
-    padding: 15,
+    padding: 10,
     borderRadius: 10,
-    width: '90%',
-    maxWidth: 350,
-    borderWidth: 1,
-    borderColor: '#4CAF50',
+    zIndex: 1000,
   },
-  modalTitle: {
-    color: '#4CAF50',
+  livesText: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
   },
-  questionText: {
-    color: '#fff',
-    fontSize: 16,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
     marginBottom: 15,
+    color: '#333',
+  },
+  feedbackText: {
+    fontSize: 16,
     textAlign: 'center',
+    marginBottom: 20,
+    color: '#666',
   },
-  optionButton: {
-    backgroundColor: '#3a3a3a',
-    padding: 12,
-    borderRadius: 5,
-    marginVertical: 4,
-    borderLeftWidth: 3,
-    borderLeftColor: '#4CAF50',
+  retryButton: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
   },
-  optionText: {
+  retryButtonText: {
     color: '#fff',
-    fontSize: 14,
-    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   bottomPadding: {
     height: TAB_BAR_HEIGHT + 20, // Extra padding at the bottom
   },
-  progressContainer: {
-    height: 20,
-    backgroundColor: '#333',
-    borderRadius: 10,
-    margin: 10,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-  },
-  progressText: {
+  teleportArea: {
     position: 'absolute',
-    color: '#fff',
-    fontSize: 12,
-    width: '100%',
-    textAlign: 'center',
-    lineHeight: 20,
-    fontWeight: 'bold',
-  },
-  hackerAttackBackground: {
-    backgroundColor: '#2a1a1a',
-  },
-  interactiveDesk: {
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-  },
-  hackedScreen: {
-    backgroundColor: '#4a1a1a',
-    borderColor: '#FF5252',
-  },
-  hackerText: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -5 }, { translateY: -10 }],
-    color: '#FF5252',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  alertBadge: {
-    backgroundColor: '#FF5250',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 10,
-    marginLeft: 10,
-  },
-  alertText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  tutorialOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    right: 150,
+    bottom: 120,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: '#00ff00',
+    backgroundColor: 'rgba(0, 255, 0, 0.2)',
+    zIndex: 1000,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 100,
   },
-  tutorialBox: {
-    backgroundColor: '#2a2a2a',
-    padding: 20,
-    borderRadius: 10,
-    width: '80%',
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-  },
-  tutorialTitle: {
-    color: '#4CAF50',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  tutorialText: {
-    color: '#fff',
+  teleportText: {
+    color: '#00ff00',
     fontSize: 14,
-    marginBottom: 15,
     textAlign: 'center',
-    lineHeight: 20,
-  },
-  tutorialButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    alignSelf: 'center',
-  },
-  tutorialButtonText: {
-    color: '#fff',
     fontWeight: 'bold',
-  },
-  successOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-  },
-  successBox: {
-    backgroundColor: '#2a2a2a',
-    padding: 20,
-    borderRadius: 10,
-    width: '80%',
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-    alignItems: 'center',
-  },
-  successTitle: {
-    color: '#4CAF50',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  successText: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  successIcon: {
-    width: 80,
-    height: 80,
-    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-    marginTop: 10,
-  },
-  successIconText: {
-    fontSize: 40,
-    color: '#4CAF50',
-  },
-  controls: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 5,
-    borderRadius: 10,
-    zIndex: 100,
-  },
-  controlRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  controlButton: {
-    width: 35,
-    height: 35,
-    backgroundColor: 'rgba(76, 175, 80, 0.8)',
-    borderRadius: 17.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 3,
-  },
-  controlButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  controlButtonSpacer: {
-    width: 35,
-    height: 35,
-    margin: 3,
-  },
-  scoreContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    zIndex: 100,
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-  },
-  scoreText: {
-    color: '#4CAF50',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  malwareThreat: {
-    position: 'absolute',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 5,
-    borderWidth: 1,
-    borderColor: '#FF5252',
-    shadowColor: '#FF0000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-  },
-  malwareIcon: {
-    fontSize: 18,
-  },
-  helpButton: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(76, 175, 80, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-  },
-  helpButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  tipContainer: {
-    position: 'absolute',
-    top: '30%',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    zIndex: 100,
-  },
-  tipBox: {
-    backgroundColor: 'rgba(76, 175, 80, 0.9)',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    maxWidth: '80%',
-    borderWidth: 1,
-    borderColor: '#fff',
-  },
-  tipText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
 });
 
