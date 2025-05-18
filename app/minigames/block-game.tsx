@@ -186,7 +186,7 @@ export default function BlockGame() {
   }, [level]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: number;
     if (timeLeft > 0 && !gameOver) {
       timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
