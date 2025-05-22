@@ -19,6 +19,7 @@ export default function HomeScreen() {
   const fetchScenario = async () => {
     setLoading(true);
     setResult(null);
+    setShowConfetti(false);
     try {
       const res = await fetch(API_URL);
       const data = await res.json();
@@ -36,7 +37,7 @@ export default function HomeScreen() {
 
   const handleGuess = (guess: boolean) => {
     if (!scenario) return;
-    const isCorrect = guess === scenario.expectedSafe;
+    const isCorrect = guess === scenario.safe;
     setResult({ correct: isCorrect });
     if (isCorrect) {
       setShowConfetti(true);
