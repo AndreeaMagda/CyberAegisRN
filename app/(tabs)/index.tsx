@@ -138,7 +138,7 @@ export default function HomeScreen() {
             </View>
             <TouchableOpacity
               style={styles.quickActionCard}
-              onPress={() => router.push('/subjects')}
+              onPress={() => router.push('/LessonsScreen')}
             >
               <Ionicons
                 name="book"
