@@ -97,8 +97,8 @@ const adDetectorStyles = StyleSheet.create({
     textAlign: 'center',
   },
   adImage: {
-    width: '100%',
-    height: '80%',
+    width: 120,
+    height: 120,
     borderRadius: 8,
     resizeMode: 'contain',
   },
