@@ -75,7 +75,10 @@ export default function HomeScreen() {
               <Text style={styles.lessonSubtitle}>
                 Find out what makes messages suspicious and how to stay safe.
               </Text>
-              <TouchableOpacity style={styles.continueButton}>
+              <TouchableOpacity
+                style={styles.continueButton}
+                onPress={() => router.push('/subjects')}
+              >
                 <Ionicons
                   name="play"
                   size={18}
@@ -133,7 +136,10 @@ export default function HomeScreen() {
               />
               <Text style={styles.quickActionLabel}>Online Shop</Text>
             </View>
-            <View style={styles.quickActionCard}>
+            <TouchableOpacity
+              style={styles.quickActionCard}
+              onPress={() => router.push('/subjects')}
+            >
               <Ionicons
                 name="book"
                 size={32}
@@ -141,7 +147,7 @@ export default function HomeScreen() {
                 style={styles.quickActionIcon}
               />
               <Text style={styles.quickActionLabel}>Lessons</Text>
-            </View>
+            </TouchableOpacity>
           </View>
           {/* New design will go here */}
         </View>
