@@ -34,13 +34,28 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack
+        initialRouteName="IntroScreen"
         screenOptions={{
           headerShown: false,
           animation: 'none',
         }}
       >
         <Stack.Screen
+          name="IntroScreen"
+          options={{
+            headerShown: false,
+            headerTitle: '',
+          }}
+        />
+        <Stack.Screen
           name="(tabs)"
+          options={{
+            headerShown: false,
+            headerTitle: '',
+          }}
+        />
+        <Stack.Screen
+          name="SubjectsScreen"
           options={{
             headerShown: false,
             headerTitle: '',
@@ -50,6 +65,13 @@ export default function RootLayout() {
           name="+not-found"
           options={{
             headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="LoginScreen"
+          options={{
+            headerShown: false,
+            headerTitle: '',
           }}
         />
       </Stack>
