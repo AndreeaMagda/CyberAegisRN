@@ -107,6 +107,25 @@ const sampleModules: Module[] = [
   },
 ];
 
+const lessonProgressData: Record<string, { progress: number; status: string; statusColor: string; icon: string }> = {
+  '1-1': { progress: 60, status: 'In Progress', statusColor: '#C6F6D5', icon: '🔒' },
+  '1-2': { progress: 30, status: 'Started', statusColor: '#E9D8FD', icon: '💻' },
+  '1-3': { progress: 85, status: 'Almost Done', statusColor: '#D6BCFA', icon: '🔑' },
+  '1-4': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '🔐' },
+  '1-5': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '✉️' },
+  '1-6': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '📁' },
+  '1-7': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '🦠' },
+  '1-8': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '🎮' },
+  '2-1': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '🌐' },
+  '2-2': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '🛡️' },
+  '2-3': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '👀' },
+  '2-4': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '📱' },
+  '2-5': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '🔗' },
+  '2-6': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '👤' },
+  '2-7': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '👨‍👩‍👧‍👦' },
+  '2-8': { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '📖' },
+};
+
 export default function SubjectsScreen() {
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
 
@@ -127,25 +146,37 @@ export default function SubjectsScreen() {
           
           {expandedModule === module.id && (
             <View style={styles.chaptersContainer}>
-              {module.chapters.map((chapter) => (
-                <Link
-                  key={chapter.id}
-                  href={{
-                    pathname: "/lessonsComponent/ChapterContent",
-                    params: { 
-                      id: chapter.id,
-                      title: chapter.title,
-                      description: chapter.description
-                    }
-                  }}
-                  asChild
-                >
-                  <TouchableOpacity style={styles.chapterButton}>
-                    <Text style={styles.chapterTitle}>{chapter.title}</Text>
-                    <Text style={styles.chapterDescription}>{chapter.description}</Text>
-                  </TouchableOpacity>
-                </Link>
-              ))}
+              {module.chapters.map((chapter) => {
+                const lessonData = lessonProgressData[chapter.id] || { progress: 0, status: 'Not Started', statusColor: '#EDF2F7', icon: '📘' };
+                return (
+                  <Link
+                    key={chapter.id}
+                    href={{
+                      pathname: "/lessonsComponent/ChapterContent",
+                      params: {
+                        id: chapter.id,
+                        title: chapter.title,
+                        description: chapter.description
+                      }
+                    }}
+                    asChild
+                  >
+                    <TouchableOpacity style={styles.lessonCard}>
+                      <View style={styles.iconContainer}>
+                        <Text style={styles.lessonIcon}>{lessonData.icon}</Text>
+                      </View>
+                      <View style={styles.lessonInfo}>
+                        <Text style={styles.lessonTitle}>{chapter.title}</Text>
+                        <Text style={styles.lessonDescription}>{chapter.description}</Text>
+                        <Text style={styles.lessonProgress}>{lessonData.progress}% Complete</Text>
+                      </View>
+                      <View style={[styles.statusBadge, { backgroundColor: lessonData.statusColor }]}> 
+                        <Text style={styles.statusText}>{lessonData.status}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </Link>
+                );
+              })}
             </View>
           )}
         </View>
@@ -177,25 +208,57 @@ const styles = StyleSheet.create({
   chaptersContainer: {
     marginLeft: 16,
   },
-  chapterButton: {
+  lessonCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'white',
     padding: 16,
-    borderRadius: 8,
-    marginBottom: 8,
+    borderRadius: 12,
+    marginBottom: 12,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
   },
-  chapterTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F3F0FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  lessonIcon: {
+    fontSize: 24,
+  },
+  lessonInfo: {
+    flex: 1,
+  },
+  lessonTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
     color: '#2c3e50',
   },
-  chapterDescription: {
-    fontSize: 14,
+  lessonDescription: {
+    fontSize: 13,
     color: '#666',
+    marginBottom: 4,
+  },
+  lessonProgress: {
+    fontSize: 12,
+    color: '#888',
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+  },
+  statusText: {
+    fontSize: 12,
+    color: '#6B46C1',
+    fontWeight: 'bold',
   },
 });
