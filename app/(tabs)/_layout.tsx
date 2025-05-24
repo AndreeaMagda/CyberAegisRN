@@ -1,54 +1,150 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
   // Handle null or undefined colorScheme by defaulting to 'light'
   const theme = colorScheme === 'dark' ? 'dark' : 'light';
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarStyle: {
-          backgroundColor: Colors[theme].background,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 10, // Evită suprapunerea
-          height: Platform.OS === 'ios' ? 80 : 60, // Ajustează înălțimea
-        },
-        tabBarShowLabel: false, // Opțional, dacă vrei doar iconițe
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
+    <View style={{ flex: 1 }}>
+      <Tabs
+        screenOptions={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
+          tabBarStyle: {
+            backgroundColor: '#6C63FF',
+            borderTopWidth: 0,
+            elevation: 0,
+            height: Platform.OS === 'ios' ? 100 : 80,
+            paddingBottom: Platform.OS === 'ios' ? insets.bottom + 20 : 24,
+            paddingTop: 8,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: -4,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+          },
+          tabBarActiveTintColor: '#FFFFFF',
+          tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.5)',
+          tabBarItemStyle: {
+            paddingTop: 0,
+            marginTop: -4,
+          },
+          tabBarIconStyle: {
+            marginBottom: 4,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '500',
+            marginBottom: Platform.OS === 'ios' ? 20 : 12,
+          },
+          tabBarButton: (props) => {
+            const { children, onPress, accessibilityState } = props;
+            const isSelected = accessibilityState?.selected;
+
+            return (
+              <View style={styles.tabButton}>
+                <View
+                  style={[
+                    styles.tabButtonContent,
+                    isSelected && styles.selectedTab,
+                  ]}
+                >
+                  <TouchableOpacity onPress={onPress} style={styles.touchable}>
+                    {children}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          },
         }}
-      />
-      <Tabs.Screen
-        name="LevelSelector"
-        options={{
-          title: 'Levels',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="game-controller" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="PlatformerGame"
-        options={{
-          title: 'Level 1',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="code-working" size={size} color={color} />
-          ),
-          href: null, // Hide from tab bar but keep accessible via navigation
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? 'home' : 'home-outline'}
+                size={24}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="subjects"
+          options={{
+            title: 'Lessons',
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? 'book' : 'book-outline'}
+                size={24}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="PlatformerGame"
+          options={{
+            title: 'Game',
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? 'game-controller' : 'game-controller-outline'}
+                size={24}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? 'person' : 'person-outline'}
+                size={24}
+                color={color}
+              />
+            ),
+          }}
+        />
+      </Tabs>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingTop: 8,
+  },
+  tabButtonContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  selectedTab: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  touchable: {
+    alignItems: 'center',
+  },
+});
