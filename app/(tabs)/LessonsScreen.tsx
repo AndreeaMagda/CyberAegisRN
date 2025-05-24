@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  StatusBar,
 } from 'react-native';
 import { Link } from 'expo-router';
 import { useState } from 'react';
@@ -249,6 +250,7 @@ export default function SubjectsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'right', 'left']}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fafbfc" />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
