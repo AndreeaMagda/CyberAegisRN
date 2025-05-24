@@ -63,6 +63,15 @@ const games = [
     color: '#E91E63',
     path: '/minigames/ad-detector-game' as const,
   },
+  {
+    id: 'ai-scenario',
+    title: 'Learn with AI',
+    description:
+      'Protejeaza-te online cu AI',
+    icon: 'ban',
+    color: '#E91E63',
+    path: '../screens/scenario/scenario' as const,
+  },
 ];
 
 export default function MinigamesScreen() {
