@@ -77,7 +77,7 @@ export default function HomeScreen() {
               </Text>
               <TouchableOpacity
                 style={styles.continueButton}
-                onPress={() => router.push('/subjects')}
+                onPress={() => router.push('/LessonsScreen')}
               >
                 <Ionicons
                   name="play"
