@@ -14,7 +14,6 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarStyle: {
-
           backgroundColor: Colors[theme].background,
           paddingBottom: Platform.OS === 'ios' ? 20 : 10, // Evită suprapunerea
           height: Platform.OS === 'ios' ? 80 : 60, // Ajustează înălțimea
@@ -25,7 +24,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Acasă',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
@@ -33,7 +32,6 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="LevelSelector"
-
         options={{
           title: 'Levels',
           tabBarIcon: ({ color, size }) => (
