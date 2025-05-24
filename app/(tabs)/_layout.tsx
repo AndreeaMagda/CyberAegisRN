@@ -2,15 +2,10 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
-  // Handle null or undefined colorScheme by defaulting to 'light'
-  const theme = colorScheme === 'dark' ? 'dark' : 'light';
 
   return (
     <View style={{ flex: 1 }}>
@@ -87,19 +82,6 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="subjects"
-          options={{
-            title: 'Lessons',
-            tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? 'book' : 'book-outline'}
-                size={24}
-                color={color}
-              />
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="PlatformerGame"
           options={{
             title: 'Game',
@@ -113,12 +95,25 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="profile"
+          name="LevelSelector"
           options={{
-            title: 'Profile',
+            title: 'Levels',
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
-                name={focused ? 'person' : 'person-outline'}
+                name={focused ? 'grid' : 'grid-outline'}
+                size={24}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="LessonsScreen"
+          options={{
+            title: 'Lessons',
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? 'book' : 'book-outline'}
                 size={24}
                 color={color}
               />
