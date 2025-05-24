@@ -5,6 +5,11 @@ import { useState } from 'react';
 interface Module {
   id: string;
   title: string;
+  subtitle: string;
+  description: string;
+  icon: string;
+  bgColor: string;
+  badgeColor: string;
   chapters: {
     id: string;
     title: string;
@@ -15,7 +20,12 @@ interface Module {
 const sampleModules: Module[] = [
   {
     id: '1',
-    title: 'Capitolul I – Noțiuni de bază',
+    title: 'Capitolul I',
+    subtitle: 'Noțiuni de bază',
+    description: 'Învață conceptele de bază necesare pentru a înțelege tematica generală.',
+    icon: '📖',
+    bgColor: '#ede6fa',
+    badgeColor: '#d1c4e9',
     chapters: [
       {
         id: '1-1',
@@ -61,7 +71,12 @@ const sampleModules: Module[] = [
   },
   {
     id: '2',
-    title: 'Capitolul II – Contextul actual',
+    title: 'Capitolul II',
+    subtitle: 'Contextul actual',
+    description: 'Explorează contextul actual al siguranței online și provocările moderne.',
+    icon: '🌐',
+    bgColor: '#c7c6fa',
+    badgeColor: '#b3b3e6',
     chapters: [
       {
         id: '2-1',
@@ -138,10 +153,20 @@ export default function SubjectsScreen() {
       {sampleModules.map((module) => (
         <View key={module.id} style={styles.moduleContainer}>
           <TouchableOpacity 
-            style={styles.moduleButton}
+            style={[styles.moduleButton, { backgroundColor: module.bgColor }]}
             onPress={() => toggleModule(module.id)}
           >
-            <Text style={styles.moduleTitle}>{module.title}</Text>
+            <View style={[styles.moduleBadge, { backgroundColor: module.badgeColor }]}> 
+              <Text style={styles.moduleBadgeText}>MODULE</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.moduleTitle}>{module.title}</Text>
+                <Text style={styles.moduleSubtitle}>{module.subtitle}</Text>
+                <Text style={styles.moduleDescription}>{module.description}</Text>
+              </View>
+              <Text style={styles.moduleIcon}>{module.icon}</Text>
+            </View>
           </TouchableOpacity>
           
           {expandedModule === module.id && (
@@ -195,15 +220,59 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   moduleButton: {
-    backgroundColor: '#2c3e50',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 8,
+    width: '100%',
+    maxWidth: 380,
+    minHeight: 200,
+    alignSelf: 'center',
+    borderRadius: 40,
+    marginBottom: 32,
+    padding: 28,
+    shadowColor: '#b3b3e6',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  moduleBadge: {
+    position: 'absolute',
+    top: 24,
+    left: 32,
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 4,
+    zIndex: 2,
+  },
+  moduleBadgeText: {
+    color: '#5f4bb6',
+    fontWeight: 'bold',
+    fontSize: 15,
+    letterSpacing: 1,
   },
   moduleTitle: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#2c225c',
+    marginTop: 24,
+    marginBottom: 0,
+  },
+  moduleSubtitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#2c225c',
+    marginBottom: 8,
+  },
+  moduleDescription: {
+    fontSize: 16,
+    color: '#3d3d5c',
+    marginBottom: 0,
+  },
+  moduleIcon: {
+    fontSize: 56,
+    marginLeft: 18,
+    color: '#5f4bb6',
+    textShadowColor: '#b3b3e6',
+    textShadowOffset: { width: 2, height: 4 },
+    textShadowRadius: 2,
   },
   chaptersContainer: {
     marginLeft: 16,
