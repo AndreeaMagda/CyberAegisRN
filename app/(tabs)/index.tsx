@@ -118,7 +118,10 @@ export default function HomeScreen() {
           </View>
           {/* Quick Actions Row */}
           <View style={styles.quickActionsRow}>
-            <View style={styles.quickActionCard}>
+            <TouchableOpacity
+              style={styles.quickActionCard}
+              onPress={() => router.push('/minigames/minigames')}
+            >
               <Ionicons
                 name="game-controller"
                 size={32}
@@ -126,7 +129,7 @@ export default function HomeScreen() {
                 style={styles.quickActionIcon}
               />
               <Text style={styles.quickActionLabel}>Minigames</Text>
-            </View>
+            </TouchableOpacity>
             <View style={styles.quickActionCard}>
               <Ionicons
                 name="bag-handle"
